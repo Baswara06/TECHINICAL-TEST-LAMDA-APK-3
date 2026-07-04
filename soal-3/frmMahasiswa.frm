@@ -6,10 +6,10 @@ Begin VB.Form frmMahasiswa
    ClientHeight    =   9345
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   13755
+   ClientWidth     =   13785
    LinkTopic       =   "Form1"
-   ScaleHeight     =   11415
-   ScaleWidth      =   18960
+   ScaleHeight     =   9345
+   ScaleWidth      =   13785
    StartUpPosition =   3  'Windows Default
    Begin VB.CommandButton btnExport 
       Caption         =   "Export"
@@ -19,7 +19,7 @@ Begin VB.Form frmMahasiswa
       Top             =   8160
       Width           =   1215
    End
-   Begin VB.ComboBox Combo1 
+   Begin VB.ComboBox cboExport 
       Height          =   315
       Left            =   7560
       TabIndex        =   26
@@ -36,7 +36,7 @@ Begin VB.Form frmMahasiswa
       _ExtentX        =   2566
       _ExtentY        =   661
       _Version        =   393216
-      Format          =   39976961
+      Format          =   212074497
       CurrentDate     =   46206
    End
    Begin VB.ComboBox cboJenjang 
@@ -113,7 +113,7 @@ Begin VB.Form frmMahasiswa
    Begin VB.TextBox txtAlamat 
       Height          =   1095
       Index           =   4
-      Left            =   1080
+      Left            =   1200
       TabIndex        =   13
       Top             =   2760
       Width           =   3975
@@ -670,15 +670,14 @@ End Sub
 
 ' ============================================================
 ' ============================================================
-' EXPORT DATA - FITUR BARU
+' EXPORT DATA
 ' ============================================================
 ' ============================================================
 
-' NOTE: btnExport punya Index = 0
-Private Sub btnExport_Click(Index As Integer)
+Private Sub btnExport_Click()
     
     Dim formatPilihan As String
-    formatPilihan = cboExport.Text   ' cboExport tanpa index
+    formatPilihan = cboExport.Text
     
     Select Case formatPilihan
         Case "Excel (.xls)"
@@ -878,78 +877,72 @@ ErrorHandler:
 End Sub
 
 ' ============================================================
-' EXPORT KE PDF (Simulasi dengan HTML)
+' EXPORT KE PDF
 ' ============================================================
 
 Private Sub ExportToPDF()
     On Error GoTo ErrorHandler
     
-    Dim fs As Object
-    Dim ts As Object
+    Dim xlApp As Object
+    Dim xlBook As Object
+    Dim xlSheet As Object
     Dim i As Integer, j As Integer
     Dim savePath As String
-    Dim html As String
     
-    savePath = GetSavePath("HTML Files (*.html)|*.html", "DataMahasiswa.html")
+    savePath = GetSavePath("PDF Files (*.pdf)|*.pdf", "DataMahasiswa.pdf")
     If savePath = "" Then Exit Sub
     
-    ' Build HTML
-    html = "<!DOCTYPE html>" & vbCrLf
-    html = html & "<html><head>" & vbCrLf
-    html = html & "<title>Data Mahasiswa</title>" & vbCrLf
-    html = html & "<style>" & vbCrLf
-    html = html & "body{font-family:Arial;margin:20px}" & vbCrLf
-    html = html & "table{border-collapse:collapse;width:100%}" & vbCrLf
-    html = html & "th,td{border:1px solid #333;padding:8px;text-align:left}" & vbCrLf
-    html = html & "th{background-color:#003366;color:white}" & vbCrLf
-    html = html & "tr:nth-child(even){background-color:#f2f2f2}" & vbCrLf
-    html = html & "</style></head><body>" & vbCrLf
-    html = html & "<h2>Data Mahasiswa</h2>" & vbCrLf
-    html = html & "<table>" & vbCrLf
+    Set xlApp = CreateObject("Excel.Application")
+    Set xlBook = xlApp.Workbooks.Add
+    Set xlSheet = xlBook.Worksheets(1)
     
-    ' Header
-    html = html & "<tr>"
+    xlApp.Visible = False
+    
+    ' Tulis Header
     For j = 0 To grdMahasiswa.Cols - 1
         grdMahasiswa.Row = 0
         grdMahasiswa.Col = j
-        html = html & "<th>" & grdMahasiswa.Text & "</th>"
+        xlSheet.Cells(1, j + 1).Value = grdMahasiswa.Text
+        xlSheet.Cells(1, j + 1).Font.Bold = True
+        xlSheet.Cells(1, j + 1).Interior.Color = RGB(0, 51, 102)
+        xlSheet.Cells(1, j + 1).Font.Color = RGB(255, 255, 255)
     Next j
-    html = html & "</tr>" & vbCrLf
     
-    ' Data
+    ' Tulis Data
     For i = 1 To grdMahasiswa.Rows - 1
-        html = html & "<tr>"
         For j = 0 To grdMahasiswa.Cols - 1
             grdMahasiswa.Row = i
             grdMahasiswa.Col = j
-            html = html & "<td>" & grdMahasiswa.Text & "</td>"
+            xlSheet.Cells(i + 1, j + 1).Value = grdMahasiswa.Text
         Next j
-        html = html & "</tr>" & vbCrLf
     Next i
     
-    html = html & "</table>" & vbCrLf
-    html = html & "<p><em>Exported on: " & Now & "</em></p>" & vbCrLf
-    html = html & "</body></html>"
+    ' Rapikan tampilan sebelum export
+    xlSheet.Columns.AutoFit
+    xlSheet.PageSetup.Orientation = 2   ' 2 = xlLandscape
+    xlSheet.PageSetup.FitToPagesWide = 1
+    xlSheet.PageSetup.FitToPagesTall = False
     
-    ' Simpan
-    Set fs = CreateObject("Scripting.FileSystemObject")
-    Set ts = fs.CreateTextFile(savePath, True)
-    ts.Write html
-    ts.Close
+    ' Export langsung ke PDF (Type:=0 -> xlTypePDF)
+    xlBook.ExportAsFixedFormat Type:=0, FileName:=savePath, _
+        Quality:=0, IncludeDocProperties:=True, IgnorePrintAreas:=False, OpenAfterPublish:=False
     
-    Set ts = Nothing
-    Set fs = Nothing
+    xlBook.Close False
+    xlApp.Quit
     
-    ' Buka di browser
-    Shell "explorer.exe """ & savePath & """", vbNormalFocus
+    Set xlSheet = Nothing
+    Set xlBook = Nothing
+    Set xlApp = Nothing
     
-    MsgBox "Data berhasil diexport ke HTML!" & vbCrLf & _
-           "Silakan print ke PDF dari browser (Ctrl+P)." & vbCrLf & savePath, vbInformation
+    MsgBox "Data berhasil diexport langsung ke PDF!" & vbCrLf & savePath, vbInformation
     Exit Sub
     
 ErrorHandler:
-    MsgBox "Error export PDF/HTML: " & Err.Description, vbCritical
-    If Not ts Is Nothing Then ts.Close
+    MsgBox "Error export PDF: " & Err.Description, vbCritical
+    If Not xlApp Is Nothing Then xlApp.Quit
+    Set xlSheet = Nothing
+    Set xlBook = Nothing
+    Set xlApp = Nothing
 End Sub
 
 ' ============================================================

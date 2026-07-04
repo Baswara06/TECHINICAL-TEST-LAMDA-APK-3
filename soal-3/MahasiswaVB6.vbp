@@ -1,7 +1,9 @@
 Type=Exe
 Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\Windows\SysWOW64\stdole2.tlb#OLE Automation
-Reference=*\G{22813728-8BD3-11D0-B4EF-00A0C9138CA4}#2.8#0#C:\Program Files (x86)\Common Files\System\ado\msadomd28.tlb#Microsoft ActiveX Data Objects (Multi-dimensional) 2.8 Library
+Reference=*\G{2A75196C-D9EB-4129-B803-931327F72D5C}#2.8#0#C:\Program Files (x86)\Common Files\System\ado\msado28.tlb#Microsoft ActiveX Data Objects 2.8 Library
+Object={5E9E78A0-531B-11CF-91F6-C2863C385E30}#1.0#0; MSFLXGRD.OCX
 Form=frmMahasiswa.frm
+Object={86CF1D34-0C5F-11D2-A9FC-0000F8754DA1}#2.0#0; MSCOMCT2.OCX
 Startup="frmMahasiswa"
 Command32=""
 Name="Project1"
