@@ -91,12 +91,9 @@ Buka `MahasiswaVB6.vbp` di VB6 IDE, lalu jalankan dengan F5.
 
 ## Fitur Aplikasi
 - CRUD Data Mahasiswa (Create, Read, Update, Delete)
-- Search mahasiswa berdasarkan nama, NIM, alamat, dan jurusan
-- Auto-create jurusan baru saat input data
-- Validasi input form
+- Search mahasiswa 
 - Export data ke Excel, CSV, JSON, PDF
 - Reset semua data mahasiswa
-- Mode Insert dan Edit terpisah
 
 ## Aturan Pengembangan yang Diterapkan
 - Tidak menggunakan API
